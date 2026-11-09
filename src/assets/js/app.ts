@@ -2,7 +2,7 @@ import confetti from 'canvas-confetti';
 import Slot from '@js/Slot';
 import SoundEffects from '@js/SoundEffects';
 import {
-  Member, buildPool, loadState, parseNames, saveState
+  MAX_TICKETS, Member, buildPool, createMember, loadState, parseNames, saveState
 } from '@js/members';
 
 // Initialize slot machine
@@ -23,6 +23,8 @@ import {
   const memberMessage = document.getElementById('member-message') as HTMLParagraphElement | null;
   const memberResetTodayButton = document.getElementById('member-reset-today') as HTMLButtonElement | null;
   const memberResetWonButton = document.getElementById('member-reset-won') as HTMLButtonElement | null;
+  const memberSelectAllButton = document.getElementById('member-select-all') as HTMLButtonElement | null;
+  const memberSelectNoneButton = document.getElementById('member-select-none') as HTMLButtonElement | null;
   const removeNameFromListCheckbox = document.getElementById('remove-from-list') as HTMLInputElement | null;
   const enableSoundCheckbox = document.getElementById('enable-sound') as HTMLInputElement | null;
 
@@ -44,6 +46,8 @@ import {
     && memberMessage
     && memberResetTodayButton
     && memberResetWonButton
+    && memberSelectAllButton
+    && memberSelectNoneButton
     && removeNameFromListCheckbox
     && enableSoundCheckbox
   )) {
@@ -141,8 +145,8 @@ import {
   };
 
   const renderMembers = () => {
-    const active = draft.filter((m) => !m.excluded);
-    const tickets = active.reduce((sum, m) => sum + (m.double ? 2 : 1), 0);
+    const active = draft.filter((m) => m.active);
+    const tickets = active.reduce((sum, m) => sum + m.tickets, 0);
     memberSummary.textContent = `전체 ${draft.length}명 · 오늘 추첨 대상 ${active.length}명 · 추첨권 ${tickets}장`;
 
     memberListEl.textContent = '';
@@ -157,12 +161,24 @@ import {
 
     draft.forEach((member, index) => {
       const row = document.createElement('li');
-      row.className = `member${member.excluded ? ' member--excluded' : ''}`;
+      row.className = `member${member.active ? '' : ' member--inactive'}`;
 
+      // 오늘 추첨 대상 선택/해제
+      const check = document.createElement('label');
+      check.className = 'member__check';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = member.active;
+      checkbox.addEventListener('change', () => {
+        draft[index].active = checkbox.checked;
+        renderMembers();
+      });
       const name = document.createElement('span');
       name.className = 'member__name';
       name.textContent = member.name;
-      row.appendChild(name);
+      check.appendChild(checkbox);
+      check.appendChild(name);
+      row.appendChild(check);
 
       if (member.won && removeNameFromListCheckbox.checked) {
         const badge = document.createElement('span');
@@ -171,32 +187,43 @@ import {
         row.appendChild(badge);
       }
 
-      const addFlag = (label: string, key: 'excluded' | 'double') => {
-        const wrapper = document.createElement('label');
-        wrapper.className = 'member__flag';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = member[key];
-        input.addEventListener('change', () => {
-          draft[index][key] = input.checked;
+      // 추첨권 수 (선택된 멤버만 조절 가능)
+      const stepper = document.createElement('span');
+      stepper.className = 'member__tickets';
+
+      const addStepButton = (label: string, delta: number, ariaLabel: string) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'member__step';
+        button.textContent = label;
+        button.setAttribute('aria-label', `${member.name} ${ariaLabel}`);
+        button.disabled = !member.active
+          || (delta < 0 ? member.tickets <= 1 : member.tickets >= MAX_TICKETS);
+        button.addEventListener('click', () => {
+          draft[index].tickets = Math.min(MAX_TICKETS, Math.max(1, member.tickets + delta));
           renderMembers();
         });
-        wrapper.appendChild(input);
-        wrapper.appendChild(document.createTextNode(label));
-        row.appendChild(wrapper);
+        return button;
       };
 
-      addFlag('오늘 제외', 'excluded');
-      addFlag('2장', 'double');
+      const count = document.createElement('span');
+      count.className = 'member__count';
+      count.textContent = `${member.tickets}장`;
+
+      stepper.appendChild(addStepButton('−', -1, '추첨권 줄이기'));
+      stepper.appendChild(count);
+      stepper.appendChild(addStepButton('+', 1, '추첨권 늘리기'));
+      row.appendChild(stepper);
 
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'member__remove';
-      remove.setAttribute('aria-label', `${member.name} 삭제`);
+      remove.setAttribute('aria-label', `${member.name} 전체 멤버에서 삭제`);
+      remove.title = '전체 멤버에서 삭제';
       remove.textContent = '×';
       remove.addEventListener('click', () => {
         draft.splice(index, 1);
-        showMessage(`${member.name} 님을 명단에서 삭제했습니다. (저장해야 반영됩니다)`);
+        showMessage(`${member.name} 님을 전체 멤버에서 삭제했습니다. (저장해야 반영됩니다)`);
         renderMembers();
       });
       row.appendChild(remove);
@@ -267,24 +294,33 @@ import {
       }
       existing.add(name);
       added.push(name);
-      draft.push({
-        name, excluded: false, double: false, won: false
-      });
+      // 새로 추가한 멤버는 바로 오늘 추첨에 참여하도록 선택된 상태로 추가
+      draft.push(createMember(name, true));
     });
 
     memberAddInput.value = '';
     const parts: string[] = [];
-    if (added.length) parts.push(`${added.length}명 추가했습니다.`);
+    if (added.length) parts.push(`${added.length}명을 전체 멤버에 추가했습니다.`);
     if (duplicated.length) parts.push(`이미 있는 이름 건너뜀: ${duplicated.join(', ')}`);
     showMessage(parts.join(' '));
     renderMembers();
   });
 
+  memberSelectAllButton.addEventListener('click', () => {
+    draft = draft.map((m) => ({ ...m, active: true }));
+    showMessage('전체 멤버를 오늘 추첨 대상에 추가했습니다. (저장해야 반영됩니다)');
+    renderMembers();
+  });
+
+  memberSelectNoneButton.addEventListener('click', () => {
+    draft = draft.map((m) => ({ ...m, active: false }));
+    showMessage('오늘 추첨 대상을 모두 해제했습니다. (저장해야 반영됩니다)');
+    renderMembers();
+  });
+
   memberResetTodayButton.addEventListener('click', () => {
-    draft = draft.map((m) => ({
-      ...m, excluded: false, double: false, won: false
-    }));
-    showMessage('오늘 제외 / 2장 / 당첨 설정을 모두 초기화했습니다. (저장해야 반영됩니다)');
+    draft = draft.map((m) => createMember(m.name));
+    showMessage('오늘 선택 / 추첨권 / 당첨 설정을 모두 초기화했습니다. (저장해야 반영됩니다)');
     renderMembers();
   });
 

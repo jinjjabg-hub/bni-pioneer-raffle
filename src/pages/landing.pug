@@ -32,10 +32,13 @@ include ../mixins/icons
         div.input-group
           label.input-label 멤버
           p#member-summary.member-summary
+          div.member-tools.member-tools--top
+            button#member-select-all.member-tool(type="button") 전체 추가
+            button#member-select-none.member-tool(type="button") 전체 해제
           ul#member-list.member-list
           div.member-add
             textarea#member-add-input.input-field.input-field--textarea(rows="2" placeholder="추가할 이름 (줄바꿈 또는 쉼표로 여러 명)")
-            button#member-add-button.solid-button.member-add__button(type="button") 멤버 추가
+            button#member-add-button.solid-button.member-add__button(type="button") 전체 멤버에 추가
           p#member-message.member-message
           div.member-tools
             button#member-reset-today.member-tool(type="button") 오늘 설정 초기화
