@@ -1,0 +1,58 @@
+include ../mixins/icons
+
+.main
+  .control-group
+    button#fullscreen-button.icon-button.icon-button--small
+      +svg-icon.red.big(svg-icon-name='fullscreen')
+    button#settings-button.icon-button.icon-button--small
+      +svg-icon.red.big(svg-icon-name='settings')
+
+  canvas#confetti-canvas.confetti
+
+  #lucky-draw
+    .title
+      //- Pug loader currently does not handle webpack alias so we will use relative path here
+      h1.title__text 행운 추첨
+
+    .slot
+      .slot__outer
+        .slot__inner
+          .slot__shadow
+          #reel.reel
+
+      #sunburst.sunburst
+        img(src="~@images/sunburst.svg" alt="sunburst")
+
+    button#draw-button.solid-button 추첨
+
+  #settings.settings
+    #settings-panel.settings__panel
+      div.settings__panel__group
+        h1.settings__title 설정
+        div.input-group
+          label.input-label 멤버
+          p#member-summary.member-summary
+          ul#member-list.member-list
+          div.member-add
+            textarea#member-add-input.input-field.input-field--textarea(rows="2" placeholder="추가할 이름 (줄바꿈 또는 쉼표로 여러 명)")
+            button#member-add-button.solid-button.member-add__button(type="button") 멤버 추가
+          p#member-message.member-message
+          div.member-tools
+            button#member-reset-today.member-tool(type="button") 오늘 설정 초기화
+            button#member-reset-won.member-tool(type="button") 당첨 기록 초기화
+
+        div.input-group.input-group--2-column
+          label.input-label(for="remove-from-list") 당첨자를 명단에서 제외
+          label.input--switch
+            input(type="checkbox" checked="true" id="remove-from-list")
+            span.slider
+
+        div.input-group.input-group--2-column
+          label.input-label(for="enable-sound") 효과음 사용
+          label.input--switch
+            input(type="checkbox" checked="true" id="enable-sound")
+            span.slider
+      div.settings__panel__group
+        button#settings-save.solid-button.solid-button 저장
+        button#settings-close.solid-button.solid-button--danger 저장하지 않고 닫기
+

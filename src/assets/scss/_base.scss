@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+*:not(input, textarea, select) {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+* {
+  -webkit-text-size-adjust: 100%;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: 'Nunito Sans', 'Noto Sans KR', 'Malgun Gothic', 微軟正黑體, 'Microsoft JhengHei',
+    'Microsoft JhengHei UI', 'Microsoft YaHei', 'Microsoft YaHei UI',
+    'PingFang TC', 'Lantinghei TC', 'Heiti TC', 'Apple LiGothic', 'PMingLiU',
+    Arial, sans-serif;
+}
+
+#app {
+  background: linear-gradient(
+    240deg,
+    $color-red-step1 0.13%,
+    $color-red-step2 26.19%,
+    $color-red-step3 52.6%,
+    $color-red-step4 79.08%,
+    $color-red-step5 100%
+  );
+  color: $color-text-light;
+  padding: 0 3.125rem;
+  min-height: 100%;
+  overflow: hidden;
+  @include flex-center;
+
+  @media #{$mobile} {
+    padding: 0 5%;
+  }
+
+  // Fixing the notch issue on iOS when using "viewport-fit=cover"
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+
+  // Older iOS versions
+  @supports (top: constant(safe-area-inset-top)) {
+    --safe-area-inset-top: constant(safe-area-inset-top);
+    --safe-area-inset-right: constant(safe-area-inset-right);
+    --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+    --safe-area-inset-left: constant(safe-area-inset-left);
+  }
+
+  @supports (top: env(safe-area-inset-top)) {
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-right: env(safe-area-inset-right);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+  }
+
+  @supports (padding: unquote('max(0px)')) {
+    padding: 0
+      unquote(
+        'max(3.125rem, var(--safe-area-inset-right)) 0 max(3.125rem, var(--safe-area-inset-left))'
+      );
+
+    @media #{$mobile} {
+      padding: 0
+        unquote(
+          'max(5%, var(--safe-area-inset-right)) 0 max(5%, var(--safe-area-inset-left))'
+        );
+    }
+  }
+}
+
+.main {
+  @include flex-center;
+  padding: 3.125rem 0;
+  width: 100%;
+  max-width: $screen-xl;
+  flex: 1 1 0;
+  min-height: min-content;
+}
+
+.footer {
+  width: 100%;
+  padding: 0.3125rem;
+  font-size: 0.75rem;
+  text-align: center;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+}
+
+a {
+  color: $color-link;
+  text-decoration: none;
+
+  &:focus,
+  &:hover,
+  &:active {
+    text-decoration: underline;
+    color: $color-link-hover;
+  }
+}
+
+.align--right {
+  text-align: right;
+}

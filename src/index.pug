@@ -1,0 +1,33 @@
+doctype 1.1
+
+html(xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko")
+  head
+    meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
+    meta(name="language" content="Korean")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover")
+    meta(name="format-detection" content="telephone=no, date=no, address=no, email=no")
+    meta(name="msapplication-tap-highlight" content="no")
+
+    //- Content Security Policy
+    include ./partials/csp.pug
+
+    //- SEO
+    include ./partials/seo.pug
+
+    //- Open Graph
+    include ./partials/open-graph.pug
+
+    //- PWA
+    include ./partials/webapp.pug
+
+    //- Favicons
+    <!-- webpackIgnore: true -->
+    link(rel="shortcut icon" href="assets/images/favicon.ico" type="image/x-icon")
+
+    title %APP_META_TITLE%
+
+  body
+    #app
+      include ./pages/landing.pug
+      include ./partials/footer.pug
