@@ -1,0 +1,301 @@
+.stage-area {
+  position: relative;
+  width: 100%;
+}
+
+/* ---------- 방식 선택 탭 ---------- */
+.mode-tabs {
+  position: relative;
+  z-index: $z-index-draw-button;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.375rem;
+  border-radius: 2rem;
+  background-color: rgba($color-black, 0.2);
+}
+
+.mode-tab {
+  border: 0;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  color: $color-white;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: rgba($color-white, 0.18);
+  }
+
+  &[aria-selected='true'] {
+    background-color: $color-yellow;
+    color: $color-black;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+/* ---------- 공통 무대 ---------- */
+.stage {
+  position: relative;
+  z-index: $z-index-slot;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &__winner {
+    min-height: 3.5rem;
+    margin-top: 1.25rem;
+    font-size: 2.75rem;
+    font-weight: 900;
+    line-height: 1.3;
+    color: $color-white;
+    text-shadow: 0 0.25rem 0 rgba($color-black, 0.25);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s, transform 0.3s;
+
+    &--show {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  &__winner-tag {
+    display: inline-block;
+    margin-right: 0.75rem;
+    padding: 0.125rem 0.75rem;
+    border-radius: 1rem;
+    background-color: $color-yellow;
+    color: $color-black;
+    font-size: 1.25rem;
+    vertical-align: middle;
+    text-shadow: none;
+  }
+}
+
+/* ---------- 룰렛 ---------- */
+.roulette {
+  position: relative;
+  width: min(26rem, 78vw, 52vh);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+
+  &__wheel {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: $color-white;
+    will-change: transform;
+  }
+
+  &__pointer {
+    position: absolute;
+    top: -0.9rem;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-left: 0.9rem solid transparent;
+    border-right: 0.9rem solid transparent;
+    border-top: 1.8rem solid $color-black;
+    filter: drop-shadow(0 0.15rem 0.1rem rgba($color-black, 0.4));
+  }
+
+  &__hub {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: -1.625rem 0 0 -1.625rem;
+    border-radius: 50%;
+    background-color: $color-yellow;
+    border: 0.375rem solid $color-white;
+    box-shadow: 0 0.15rem 0.5rem rgba($color-black, 0.3);
+  }
+}
+
+/* ---------- 카드 ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.75rem, 1fr));
+  gap: 0.625rem;
+  width: min(48rem, 92vw);
+  max-height: 46vh;
+  padding: 0.75rem;
+  overflow-y: auto;
+  border-radius: 1rem;
+  background-color: rgba($color-black, 0.15);
+}
+
+.card {
+  position: relative;
+  padding: 0;
+  border: 0;
+  height: 5.5rem;
+  background: transparent;
+  perspective: 40rem;
+  font-family: inherit;
+  cursor: pointer;
+
+  &__inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.7s;
+  }
+
+  &__front,
+  &__back {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.625rem;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 0.25rem 0.5rem rgba($color-black, 0.25);
+  }
+
+  &__front {
+    background: $color-yellow url(@images/light-blubs.svg);
+    color: $color-white;
+    font-size: 2rem;
+    font-weight: 900;
+    text-shadow: 0 0.125rem 0 rgba($color-black, 0.25);
+  }
+
+  &__back {
+    padding: 0.25rem;
+    background-color: $color-white;
+    color: $color-black;
+    font-size: 1.125rem;
+    font-weight: 900;
+    word-break: break-all;
+    transform: rotateY(180deg);
+  }
+
+  &--hot &__front {
+    outline: 0.25rem solid $color-white;
+    filter: brightness(1.15);
+  }
+
+  &--flipped &__inner {
+    transform: rotateY(180deg);
+  }
+
+  &--flipped {
+    z-index: 2;
+  }
+
+  &--flipped &__back {
+    font-size: 1.375rem;
+    outline: 0.3rem solid $color-yellow;
+  }
+}
+
+.cards--shuffling .card {
+  animation: card-shake 0.35s ease-in-out infinite;
+}
+
+@keyframes card-shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(-0.3rem, 0.2rem) rotate(-4deg);
+  }
+
+  75% {
+    transform: translate(0.3rem, -0.2rem) rotate(4deg);
+  }
+}
+
+/* ---------- 이름 섞기 ---------- */
+.shuffle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(48rem, 92vw);
+  height: min(16rem, 34vh);
+  padding: 1rem;
+  border: 1.25rem solid $color-yellow;
+  border-radius: 1.5rem;
+  background: $color-white;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+  overflow: hidden;
+
+  &__name {
+    max-width: 100%;
+    font-size: min(8rem, 17vw, 18vh);
+    font-weight: 900;
+    line-height: 1.2;
+    color: $color-black;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--idle {
+      font-size: min(3rem, 8vw);
+      color: $color-mid-grey;
+    }
+
+    &--done {
+      color: $color-red-step5;
+      animation: shuffle-pop 0.5s ease-out;
+    }
+  }
+}
+
+@keyframes shuffle-pop {
+  0% {
+    transform: scale(0.7);
+  }
+
+  60% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media #{$mobile} {
+  .mode-tab {
+    padding: 0.5rem 0.875rem;
+    font-size: 1rem;
+  }
+
+  .stage__winner {
+    font-size: 2rem;
+  }
+}

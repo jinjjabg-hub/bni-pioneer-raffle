@@ -1,3 +1,5 @@
+import { DrawMode, isDrawMode } from '@js/presenters';
+
 /** 고정 멤버 명단. 처음 접속하는 모든 기기에서 기본 전체 명단으로 사용됩니다. */
 export const DEFAULT_MEMBER_NAMES: string[] = [
   '송승훈', '이소연', '심학봉', '박진성', '이화춘', '이상호', '조현우', '정명수',
@@ -27,6 +29,8 @@ export interface RaffleState {
   members: Member[];
   removeWinner: boolean;
   sound: boolean;
+  /** 마지막으로 선택한 추첨 방식 */
+  mode: DrawMode;
 }
 
 const STORAGE_KEY = 'bni-pioneer-raffle-v1';
@@ -45,7 +49,8 @@ const createDefaultState = (): RaffleState => ({
   date: getToday(),
   members: DEFAULT_MEMBER_NAMES.map((name) => createMember(name)),
   removeWinner: true,
-  sound: true
+  sound: true,
+  mode: 'slot'
 });
 
 const clampTickets = (value: unknown): number => {
@@ -108,7 +113,8 @@ export const loadState = (): RaffleState => {
       date: getToday(),
       members,
       removeWinner: saved.removeWinner !== false,
-      sound: saved.sound !== false
+      sound: saved.sound !== false,
+      mode: isDrawMode(saved.mode) ? saved.mode : 'slot'
     };
   } catch (e) {
     return createDefaultState();

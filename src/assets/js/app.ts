@@ -4,6 +4,9 @@ import SoundEffects from '@js/SoundEffects';
 import {
   MAX_TICKETS, Member, buildPool, createMember, loadState, parseNames, saveState
 } from '@js/members';
+import {
+  CardsPresenter, DrawMode, Presenter, RoulettePresenter, ShufflePresenter, isDrawMode
+} from '@js/presenters';
 
 // Initialize slot machine
 (() => {
@@ -96,11 +99,20 @@ import {
     sunburstSvg.style.display = 'none';
   };
 
+  const modeTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.mode-tab'));
+  const setModeTabsDisabled = (disabled: boolean) => {
+    modeTabs.forEach((tab) => {
+      // eslint-disable-next-line no-param-reassign
+      tab.disabled = disabled;
+    });
+  };
+
   /**  Function to be trigger before spinning */
   const onSpinStart = () => {
     stopWinningAnimation();
     drawButton.disabled = true;
     settingsButton.disabled = true;
+    setModeTabsDisabled(true);
     soundEffects.spin((MAX_REEL_ITEMS - 1) / 10);
   };
 
@@ -122,20 +134,93 @@ import {
     await soundEffects.win();
     drawButton.disabled = false;
     settingsButton.disabled = false;
+    setModeTabsDisabled(false);
   };
 
+  /** 슬롯 외 추첨 방식의 연출 담당 (슬롯은 Slot이 직접 연출) */
+  const cardsPresenter = new CardsPresenter(document.getElementById('cards-stage') as HTMLElement);
+  const presenters: Record<Exclude<DrawMode, 'slot'>, Presenter> = {
+    roulette: new RoulettePresenter(document.getElementById('roulette-stage') as HTMLElement),
+    cards: cardsPresenter,
+    shuffle: new ShufflePresenter(document.getElementById('shuffle-stage') as HTMLElement)
+  };
+  const slotStage = document.getElementById('slot-stage') as HTMLElement;
+  const stageElements: Record<Exclude<DrawMode, 'slot'>, HTMLElement> = {
+    roulette: document.getElementById('roulette-stage') as HTMLElement,
+    cards: document.getElementById('cards-stage') as HTMLElement,
+    shuffle: document.getElementById('shuffle-stage') as HTMLElement
+  };
+  let currentMode: DrawMode = state.mode;
+
   /** Slot instance */
-  const slot = new Slot({
+  const slot: Slot = new Slot({
     reelContainerSelector: '#reel',
     maxReelItems: MAX_REEL_ITEMS,
     onSpinStart,
     onSpinEnd,
-    onNameListChanged: stopWinningAnimation
+    onNameListChanged: () => {
+      stopWinningAnimation();
+      // 명단이 바뀌면 현재 방식의 대기 화면(룰렛 칸, 카드 등)도 새 명단으로 다시 그림
+      if (currentMode !== 'slot') {
+        presenters[currentMode].preview(slot.names);
+      }
+    }
   });
 
   slot.shouldRemoveWinnerFromNameList = state.removeWinner;
   soundEffects.mute = !state.sound;
   slot.names = buildPool(state.members, state.removeWinner);
+
+  /** 추첨 방식 전환: 해당 무대만 보여주고 탭 선택 상태를 맞춘다 */
+  const applyMode = (mode: DrawMode) => {
+    currentMode = mode;
+    stopWinningAnimation();
+    slotStage.style.display = mode === 'slot' ? '' : 'none';
+    (Object.keys(stageElements) as Exclude<DrawMode, 'slot'>[]).forEach((key) => {
+      stageElements[key].hidden = key !== mode;
+    });
+    modeTabs.forEach((tab) => {
+      tab.setAttribute('aria-selected', String(tab.dataset.mode === mode));
+    });
+    if (mode !== 'slot') {
+      presenters[mode].preview(slot.names);
+    }
+  };
+
+  /** 현재 방식으로 추첨 시작. pickedIndex는 카드 방식에서 직접 고른 카드 번호 */
+  const startDraw = (pickedIndex?: number) => {
+    if (drawButton.disabled) {
+      return;
+    }
+
+    if (!slot.names.length) {
+      onSettingsOpen();
+      return;
+    }
+
+    if (currentMode === 'slot') {
+      slot.spin();
+      return;
+    }
+
+    const presenter = presenters[currentMode];
+    slot.drawWith((winner, pool) => presenter.play(winner, pool, pickedIndex));
+  };
+
+  modeTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const mode = tab.dataset.mode;
+      if (!isDrawMode(mode) || drawButton.disabled) {
+        return;
+      }
+      applyMode(mode);
+      state.mode = mode;
+      saveState(state);
+    });
+  });
+
+  cardsPresenter.onPick = (index) => startDraw(index);
+  applyMode(currentMode);
 
   /** 설정 화면에서 편집 중인 멤버 (저장 전까지는 원본에 반영되지 않음) */
   let draft: Member[] = [];
@@ -250,14 +335,7 @@ import {
   };
 
   // Click handler for "Draw" button
-  drawButton.addEventListener('click', () => {
-    if (!slot.names.length) {
-      onSettingsOpen();
-      return;
-    }
-
-    slot.spin();
-  });
+  drawButton.addEventListener('click', () => startDraw());
 
   // Hide fullscreen button when it is not supported
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

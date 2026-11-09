@@ -152,6 +152,38 @@ export default class Slot {
   }
 
   /**
+   * 슬롯 대신 다른 연출(룰렛, 카드 등)로 추첨한다.
+   * 당첨자는 여기서 먼저 정하고, 연출은 그 결과를 보여주기만 한다.
+   * @param play  당첨자와 (당첨자 제거 전) 추첨 풀을 받아 연출을 재생하는 함수
+   * @returns Whether the draw is completed successfully
+   */
+  public async drawWith(play: (winner: string, pool: string[]) => Promise<void>): Promise<boolean> {
+    if (!this.nameList.length) {
+      return false;
+    }
+
+    if (this.onSpinStart) {
+      this.onSpinStart();
+    }
+
+    const pool = this.nameList.slice();
+    const winner = Slot.shuffleNames<string>(pool)[0];
+
+    if (this.shouldRemoveWinner) {
+      this.nameList = this.nameList.filter((name) => name !== winner);
+    }
+
+    try {
+      await play(winner, pool);
+    } finally {
+      if (this.onSpinEnd) {
+        this.onSpinEnd(winner);
+      }
+    }
+    return true;
+  }
+
+  /**
    * Function for spinning the slot
    * @returns Whether the spin is completed successfully
    */

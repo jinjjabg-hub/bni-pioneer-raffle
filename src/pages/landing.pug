@@ -14,11 +14,22 @@ include ../mixins/icons
       //- Pug loader currently does not handle webpack alias so we will use relative path here
       h1.title__text 행운 추첨
 
-    .slot
-      .slot__outer
-        .slot__inner
-          .slot__shadow
-          #reel.reel
+    #mode-tabs.mode-tabs(role="tablist" aria-label="추첨 방식")
+      button.mode-tab(type="button" role="tab" data-mode="slot") 슬롯
+      button.mode-tab(type="button" role="tab" data-mode="roulette") 룰렛
+      button.mode-tab(type="button" role="tab" data-mode="cards") 카드
+      button.mode-tab(type="button" role="tab" data-mode="shuffle") 이름 섞기
+
+    .stage-area
+      .slot#slot-stage
+        .slot__outer
+          .slot__inner
+            .slot__shadow
+            #reel.reel
+
+      #roulette-stage.stage(hidden)
+      #cards-stage.stage(hidden)
+      #shuffle-stage.stage(hidden)
 
       #sunburst.sunburst
         img(src="~@images/sunburst.svg" alt="sunburst")
