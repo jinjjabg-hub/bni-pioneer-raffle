@@ -1,7 +1,10 @@
 /** 추첨 방식. slot(슬롯머신)은 Slot 클래스가 직접 연출하고, 나머지는 아래 Presenter가 연출합니다. */
-export type DrawMode = 'slot' | 'roulette' | 'cards' | 'shuffle';
+export type DrawMode = 'slot' | 'roulette' | 'cards' | 'shuffle'
+  | 'race' | 'ladder' | 'balloon' | 'spotlight' | 'lotto';
 
-export const DRAW_MODES: DrawMode[] = ['slot', 'roulette', 'cards', 'shuffle'];
+export const DRAW_MODES: DrawMode[] = [
+  'slot', 'roulette', 'cards', 'shuffle', 'race', 'ladder', 'balloon', 'spotlight', 'lotto'
+];
 
 export const isDrawMode = (value: unknown): value is DrawMode => (
   typeof value === 'string' && (DRAW_MODES as string[]).includes(value)
@@ -23,9 +26,9 @@ interface TicketGroup {
   tickets: number;
 }
 
-const sleep = (ms: number) => new Promise<void>((resolve) => { window.setTimeout(resolve, ms); });
+export const sleep = (ms: number) => new Promise<void>((resolve) => { window.setTimeout(resolve, ms); });
 
-const randomInt = (max: number) => Math.floor(Math.random() * max);
+export const randomInt = (max: number) => Math.floor(Math.random() * max);
 
 /** 추첨 풀(추첨권 1장 = 이름 1개)을 이름별 추첨권 수로 묶는다 */
 const groupTickets = (pool: string[]): TicketGroup[] => {
@@ -34,7 +37,7 @@ const groupTickets = (pool: string[]): TicketGroup[] => {
   return Array.from(groups, ([name, tickets]) => ({ name, tickets }));
 };
 
-const shuffled = <T>(items: T[]): T[] => {
+export const shuffled = <T>(items: T[]): T[] => {
   const result = items.slice();
   for (let i = result.length - 1; i > 0; i -= 1) {
     const j = randomInt(i + 1);
@@ -43,13 +46,13 @@ const shuffled = <T>(items: T[]): T[] => {
   return result;
 };
 
-const createWinnerLabel = (): HTMLDivElement => {
+export const createWinnerLabel = (): HTMLDivElement => {
   const el = document.createElement('div');
   el.className = 'stage__winner';
   return el;
 };
 
-const showWinner = (el: HTMLElement, winner: string | null) => {
+export const showWinner = (el: HTMLElement, winner: string | null) => {
   el.textContent = '';
   if (winner === null) {
     el.classList.remove('stage__winner--show');
