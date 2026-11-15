@@ -165,6 +165,8 @@ import {
     lotto: new LottoPresenter(stageElements.lotto)
   };
   const slotStage = document.getElementById('slot-stage') as HTMLElement;
+  const luckyDraw = document.getElementById('lucky-draw') as HTMLElement;
+  const WIDE_MODES: DrawMode[] = ['race', 'ladder', 'balloon', 'spotlight', 'lotto'];
   let currentMode: DrawMode = state.mode;
 
   /** Slot instance */
@@ -191,6 +193,8 @@ import {
     currentMode = mode;
     stopWinningAnimation();
     slotStage.style.display = mode === 'slot' ? '' : 'none';
+    // 전체 인원을 한 화면에 보여 주는 방식은 무대가 크므로 제목과 버튼 여백을 줄인다
+    luckyDraw.classList.toggle('lucky-draw--wide', WIDE_MODES.includes(mode));
     (Object.keys(stageElements) as StageMode[]).forEach((key) => {
       stageElements[key].hidden = key !== mode;
     });
