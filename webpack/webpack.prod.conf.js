@@ -42,9 +42,10 @@ module.exports = merge(baseWebpackConfig, {
     new MiniCssExtractPlugin({
       filename: 'assets/css/[name].[chunkhash:8].css'
     }),
+    // 새 버전을 배포하면 열려 있는 탭을 모두 닫지 않아도 바로 새 버전으로 바뀌게 한다
     new WorkboxPlugin.GenerateSW({
-      clientsClaim: false,
-      skipWaiting: false
+      clientsClaim: true,
+      skipWaiting: true
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
