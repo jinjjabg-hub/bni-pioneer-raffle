@@ -7,6 +7,9 @@ import {
 import {
   CardsPresenter, DrawMode, Presenter, RoulettePresenter, ShufflePresenter, isDrawMode
 } from '@js/presenters';
+import {
+  BalloonPresenter, LadderPresenter, LottoPresenter, RacePresenter, SpotlightPresenter
+} from '@js/gamePresenters';
 
 // Initialize slot machine
 (() => {
@@ -138,18 +141,32 @@ import {
   };
 
   /** 슬롯 외 추첨 방식의 연출 담당 (슬롯은 Slot이 직접 연출) */
-  const cardsPresenter = new CardsPresenter(document.getElementById('cards-stage') as HTMLElement);
-  const presenters: Record<Exclude<DrawMode, 'slot'>, Presenter> = {
-    roulette: new RoulettePresenter(document.getElementById('roulette-stage') as HTMLElement),
+  type StageMode = Exclude<DrawMode, 'slot'>;
+  const stageElement = (mode: StageMode) => document.getElementById(`${mode}-stage`) as HTMLElement;
+  const stageElements: Record<StageMode, HTMLElement> = {
+    roulette: stageElement('roulette'),
+    cards: stageElement('cards'),
+    shuffle: stageElement('shuffle'),
+    race: stageElement('race'),
+    ladder: stageElement('ladder'),
+    balloon: stageElement('balloon'),
+    spotlight: stageElement('spotlight'),
+    lotto: stageElement('lotto')
+  };
+  const cardsPresenter = new CardsPresenter(stageElements.cards);
+  const presenters: Record<StageMode, Presenter> = {
+    roulette: new RoulettePresenter(stageElements.roulette),
     cards: cardsPresenter,
-    shuffle: new ShufflePresenter(document.getElementById('shuffle-stage') as HTMLElement)
+    shuffle: new ShufflePresenter(stageElements.shuffle),
+    race: new RacePresenter(stageElements.race),
+    ladder: new LadderPresenter(stageElements.ladder),
+    balloon: new BalloonPresenter(stageElements.balloon),
+    spotlight: new SpotlightPresenter(stageElements.spotlight),
+    lotto: new LottoPresenter(stageElements.lotto)
   };
   const slotStage = document.getElementById('slot-stage') as HTMLElement;
-  const stageElements: Record<Exclude<DrawMode, 'slot'>, HTMLElement> = {
-    roulette: document.getElementById('roulette-stage') as HTMLElement,
-    cards: document.getElementById('cards-stage') as HTMLElement,
-    shuffle: document.getElementById('shuffle-stage') as HTMLElement
-  };
+  const luckyDraw = document.getElementById('lucky-draw') as HTMLElement;
+  const WIDE_MODES: DrawMode[] = ['race', 'ladder', 'balloon', 'spotlight', 'lotto'];
   let currentMode: DrawMode = state.mode;
 
   /** Slot instance */
@@ -176,7 +193,9 @@ import {
     currentMode = mode;
     stopWinningAnimation();
     slotStage.style.display = mode === 'slot' ? '' : 'none';
-    (Object.keys(stageElements) as Exclude<DrawMode, 'slot'>[]).forEach((key) => {
+    // 전체 인원을 한 화면에 보여 주는 방식은 무대가 크므로 제목과 버튼 여백을 줄인다
+    luckyDraw.classList.toggle('lucky-draw--wide', WIDE_MODES.includes(mode));
+    (Object.keys(stageElements) as StageMode[]).forEach((key) => {
       stageElements[key].hidden = key !== mode;
     });
     modeTabs.forEach((tab) => {

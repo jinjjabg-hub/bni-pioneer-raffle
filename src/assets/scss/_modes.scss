@@ -299,3 +299,187 @@
     font-size: 2rem;
   }
 }
+
+/* ---------- 팀한판에서 옮겨 온 방식 공통 ---------- */
+.stage__empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: $color-mid-grey;
+}
+
+/* 전체 인원(최대 100명)을 한 화면에 보여 주는 방식: 무대가 크므로 제목과 버튼 여백을 줄인다 */
+#lucky-draw.lucky-draw--wide {
+  .title {
+    margin: 0.5rem 0 0.75rem 0;
+  }
+
+  .title__text {
+    font-size: 2.75rem;
+  }
+
+  .mode-tabs {
+    margin-bottom: 0.75rem;
+  }
+
+  .stage__winner {
+    min-height: 3rem;
+    margin-top: 0.5rem;
+    font-size: 2.25rem;
+  }
+
+  #draw-button {
+    margin-top: 0.75rem;
+  }
+}
+
+/* ---------- 달리기 경주 ---------- */
+.race {
+  position: relative;
+  width: min(80rem, 94vw);
+  min-height: 5rem;
+  border-right: 0.5rem solid $color-yellow;
+  border-radius: 1rem;
+  background-color: $color-white;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+  overflow: hidden;
+
+  &__runner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0 0.25rem;
+    font-weight: 900;
+    line-height: 1.5;
+    color: $color-black;
+    white-space: nowrap;
+    will-change: transform;
+
+    &--win {
+      z-index: 2;
+      border-radius: 0.5rem;
+      background-color: $color-yellow;
+      font-size: 1.75rem !important;
+    }
+  }
+}
+
+/* ---------- 사다리 ---------- */
+.ladder {
+  display: block;
+  width: min(80rem, 94vw);
+  height: 50vh;
+  min-height: 15rem;
+  border-radius: 1rem;
+  background-color: $color-white;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+}
+
+/* ---------- 풍선 서바이벌 ---------- */
+.balloons {
+  --columns: 8;
+  --rows: 2;
+  // 한 줄의 높이: 줄 수가 늘어도 전체가 화면 높이의 절반 안에 들어오게 한다
+  --row: min(5.5rem, calc(50vh / var(--rows)));
+
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  gap: 0 0.25rem;
+  width: min(80rem, 94vw);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  background-color: $color-white;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+
+  .stage__empty {
+    grid-column: 1 / -1;
+  }
+}
+
+.balloon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: var(--row);
+  color: $color-black;
+  transition: opacity 0.4s, transform 0.4s;
+
+  &__icon {
+    font-size: calc(var(--row) * 0.5);
+    line-height: 1.15;
+  }
+
+  &__name {
+    max-width: 100%;
+    font-size: max(0.6875rem, min(1.0625rem, calc(var(--row) * 0.26)));
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--pop {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+
+  &--win {
+    z-index: 2;
+    color: $color-red-step5;
+    transform: scale(1.6);
+  }
+}
+
+/* ---------- 스포트라이트 ---------- */
+.spotlight {
+  --columns: 5;
+  --rows: 4;
+  --row: min(3.75rem, calc(50vh / var(--rows)));
+
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  gap: 0 0.375rem;
+  width: min(80rem, 94vw);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  background-color: #111827;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+
+  .stage__empty {
+    grid-column: 1 / -1;
+  }
+
+  &__seat {
+    height: calc(var(--row) * 0.86);
+    margin: calc(var(--row) * 0.07) 0;
+    border-radius: 0.625rem;
+    color: #6b7690;
+    font-size: max(0.75rem, min(1.375rem, calc(var(--row) * 0.42)));
+    font-weight: 900;
+    line-height: calc(var(--row) * 0.86);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--lit {
+      color: $color-black;
+      background: radial-gradient(#fff6c9, $color-yellow);
+      box-shadow: 0 0 2.5rem $color-yellow;
+    }
+  }
+}
+
+/* ---------- 공 추첨기 ---------- */
+.lotto {
+  display: block;
+  width: min(36rem, 90vw, 54vh);
+  height: auto;
+  border-radius: 50%;
+  box-shadow: 0 0.5rem 1.5rem rgba($color-black, 0.3);
+}
