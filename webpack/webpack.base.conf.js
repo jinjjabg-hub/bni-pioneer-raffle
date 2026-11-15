@@ -43,7 +43,9 @@ module.exports = {
           globOptions: { ignore: ['**/.DS_Store'] }
         },
         { from: path.resolve(__dirname, '../src/assets/images/favicon.ico'), to: 'assets/images/favicon.ico' },
-        { from: path.resolve(__dirname, '../src/manifest.json'), to: 'manifest.json' }
+        { from: path.resolve(__dirname, '../src/manifest.json'), to: 'manifest.json' },
+        // 팀 게임(BNI 퀴즈 · 딱 10초): 빌드 과정 없이 그대로 쓰는 한 장짜리 화면
+        { from: path.resolve(__dirname, '../src/static/games.html'), to: 'games.html' }
       ]
     }),
     new HtmlWebpackPlugin({
